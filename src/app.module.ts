@@ -10,7 +10,9 @@ import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
 
     TypeOrmModule.forRoot({
       type: 'postgres',

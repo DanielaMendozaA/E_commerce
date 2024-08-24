@@ -1,19 +1,75 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { UsersService } from 'src/users/users.service';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  private readonly saltRounds = 10;
+  constructor(
+    private jwtService: JwtService,
+    private readonly usersService: UsersService
+  ) {}
 
   async generateToken(user: any){
-    const payload = { username: user.username, sub: user.userId };
+    const payload = { id: user.id, email: user.email, roleId: user.roleId };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  async validateUser(payload: any){
-    return { userId: payload.sub, username: payload.username };
+    validateUser(payload: any){
+    return { id: payload.id, email: payload.email, roleId: payload.roleId };
   }
+
+  async validateUserCredentials(email: string, password: string){
+    const user = await this.usersService.findOneByEmail(email);
+    if(user){
+      const isPasswordMatching = await this.comparePasswords(password, user.password);
+      if(isPasswordMatching){
+        return user;
+      }
+    }
+    throw new UnauthorizedException('Invalid email or password');
+  }
+  
+  async hashPassword(password: string): Promise<string>{
+    const salt = await bcrypt.genSalt(this.saltRounds);
+    return bcrypt.hash(password, salt);
+
+  }
+
+
+  async comparePasswords(password: string, hashedPassword: string): Promise<boolean>{
+    return bcrypt.compare(password, hashedPassword);
+  }
+
+  async register({ password, email, username}: RegisterDto){
+    const user = await this.usersService.findOneByEmail(email);
+    if(user) throw new BadRequestException('User already exists');
+    const roleId = "6d44bc8d-e208-4dbd-84f3-1356275493b7";
+    const hashedPassword = await this.hashPassword(password);
+    const newUser = {
+      email,
+      password: hashedPassword,
+      username,
+      roleId
+    }
+    await this.usersService.create(newUser);
+
+    return { message: 'User created successfully', newUser };
+  
+  }
+
+  async login({ email, password }){
+    const user = await this.validateUserCredentials(email, password);
+    if(!user) throw new UnauthorizedException('Invalid email or password');
+    const payload = this.validateUser(user);
+    const token = await this.generateToken(payload);
+    return { message: 'Login successful', token, email: user.email};
+  }
+
+
 
 }

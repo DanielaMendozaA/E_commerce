@@ -2,7 +2,7 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 
 import { AllExceptionsFilter, ValidationExceptionFilter } from "../errors";
 
-export const globalPipesConfig = (app: INestApplication<any>) => {
+export const setupGlobalConfig = (app: INestApplication<any>) => {
     app.useGlobalPipes(new ValidationPipe({
         transform: true,
         whitelist: true,
