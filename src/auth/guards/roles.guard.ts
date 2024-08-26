@@ -3,8 +3,8 @@ import { Reflector } from "@nestjs/core";
 import { UsersService } from "src/users/users.service";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 import { RolesService } from "src/roles/roles.service";
-import { LoggerService } from "src/common/errors/services/logger.service";
 import { CustomUnauthorizedException } from "src/common/exceptions/custom-unauthorized.exception";
+import { LoggerService } from "src/common/services/logger.service";
 
 
 @Injectable()

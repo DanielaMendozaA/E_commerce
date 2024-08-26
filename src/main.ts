@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { setupGlobalConfig } from './common/config/setup-global-config';
 import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from './common/errors/services/logger.service';
+import { LoggerService } from './common/services/logger.service';
 import RoleSeed from './dabase/seeds/role.seed';
 
 
@@ -13,12 +13,20 @@ async function bootstrap() {
   const logger = app.get(LoggerService); // Obtén la instancia de LoggerService
   const roleSeed = new RoleSeed();
   const configService = app.get(ConfigService); // Usa app.get para obtener ConfigService
-  const executeSeed = configService.get<string>('EXECUTE_SEEDS');
+  const executeSeedString = configService.get<string>('EXECUTE_SEEDS');
+  logger.log('Execute seeds string: ' + executeSeedString + typeof executeSeedString);
+  const executeSeed = JSON.parse(executeSeedString);
 
-  if (executeSeed === 'true') {
+  logger.log('Starting application');
+  logger.log('Execute seeds: ' + executeSeed + typeof (executeSeed));
+
+
+  if (executeSeed === true) {
     logger.log('Seeding roles');
     await roleSeed.run(dataSource);
     logger.log('Roles seeded');
+  }else{
+    logger.log('Sedder not executed');
   }
 
   app.setGlobalPrefix('api/v1');

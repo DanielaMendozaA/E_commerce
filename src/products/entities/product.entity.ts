@@ -1,4 +1,5 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Order } from "src/order/entities/order.entity";
+import { BeforeInsert, Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Product {
@@ -51,5 +52,7 @@ export class Product {
             .replaceAll("'",'')
     }
 
+    @ManyToMany(() => Order, order => order.products)
+    orders: Order[]
 
 }

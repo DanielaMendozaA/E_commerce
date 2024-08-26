@@ -13,6 +13,7 @@ import { JwtGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { RolesModule } from 'src/roles/roles.module';
 import { LoggerService } from 'src/common/errors';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports:[
@@ -28,7 +29,8 @@ import { LoggerService } from 'src/common/errors';
       }),
     }),
     UsersModule,
-    RolesModule
+    RolesModule,
+    CommonModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, UsersService, JwtGuard, RolesGuard, LoggerService],

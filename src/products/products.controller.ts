@@ -1,16 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards, Query } from '@nestjs/common';
-import { ProductsService } from './products.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards, Query, Inject } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { IProductService } from './interfaces/product-service.interface';
 
 @Controller('products')
 @UseGuards(JwtGuard, RolesGuard)
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(@Inject('IProductService')private readonly productsService: IProductService) {}
 
   @Post()
   @Roles('admin')

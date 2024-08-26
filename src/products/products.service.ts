@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,17 +6,19 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { validate as isUUID } from 'uuid';
+import { LoggerService } from 'src/common/errors';
+import { ExceptionHandlerService } from 'src/common/services/exception-handler.service';
+import { IProductService } from './interfaces/product-service.interface';
 
 
 
 @Injectable()
-export class ProductsService {
-
-  private readonly logger = new Logger('ProductsService')
-
+export class ProductsService implements IProductService {
   constructor(
       @InjectRepository(Product)
-      private readonly prodcuctRepository: Repository<Product>
+      private readonly prodcuctRepository: Repository<Product>,
+      private readonly logger: LoggerService,
+      private readonly handleDBExceptions: ExceptionHandlerService
     ){}
 
 
@@ -27,7 +29,8 @@ export class ProductsService {
       await this.prodcuctRepository.save(product);
       return product
     } catch (error) {
-      this.handleDBExceptions(error)
+      this.logger.error(error)
+      this.handleDBExceptions.handleDBExceptions(error)
     }
   }
 
@@ -40,7 +43,8 @@ export class ProductsService {
       });
       return products
     } catch (error) {
-      this.handleDBExceptions(error)
+      this.logger.error(error)
+      this.handleDBExceptions.handleDBExceptions(error)
     }
   }
 
@@ -55,8 +59,9 @@ export class ProductsService {
       return { status: 'success', message: 'Product removed successfully' };
       
     } catch (error) {
+      this.logger.error(error);
       if (error instanceof BadRequestException) {
-        throw error;
+        throw this.handleDBExceptions.handleDBExceptions(error)
       }
       throw new InternalServerErrorException('An error occurred while removing the product');
     }
@@ -85,27 +90,27 @@ export class ProductsService {
         
         return product
    } catch (error) {
-     this.handleDBExceptions(error)
+      this.logger.error(error)
+      this.handleDBExceptions.handleDBExceptions(error)
     
    }
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+    try {
+      const product = await this.prodcuctRepository.findOne({ where: { id } });
+      if (!product) {
+        throw new BadRequestException('Product not found');
+      }
+      
+      await this.prodcuctRepository.update(id, updateProductDto);
+      return { status: 'success', message: 'Product updated successfully' };
+      
+    } catch (error) {
+      this.logger.error(error)
+      this.handleDBExceptions.handleDBExceptions(error)
+      
+    }
   }
 
-
-  private handleDBExceptions(error: any){
-    if (error.code === '23505') 
-      throw new BadRequestException(error.detail);
-
-    if(error.code === '22P02')
-      throw new BadRequestException('Invalid input data');
-
-    if(error.code === '23503')
-      throw new BadRequestException('Foreign key constraint violation');
-    
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs')
-  }
 }

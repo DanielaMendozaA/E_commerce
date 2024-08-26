@@ -1,9 +1,9 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, InternalServerErrorException } from '@nestjs/common';
-import { LoggerService } from '../services/logger.service';
+import { LoggerService } from '../../services/logger.service';
 
 import { Request, Response } from 'express';
 
-@Catch(InternalServerErrorException)
+@Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   constructor(private readonly logger: LoggerService) {}
 
