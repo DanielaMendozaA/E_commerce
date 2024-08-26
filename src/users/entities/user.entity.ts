@@ -1,5 +1,5 @@
 import { Role } from "src/roles/entities/role.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 
 
@@ -9,12 +9,14 @@ export class User {
     id: string;
 
     @Column()
+    @Unique(['email'])
     email: string;
 
     @Column()
     password: string;
 
     @Column()
+    @Unique(['username'])
     username: string;
 
     @ManyToOne(() => Role)

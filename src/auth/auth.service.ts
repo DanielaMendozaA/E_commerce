@@ -3,13 +3,17 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
+import { ConfigService } from '@nestjs/config';
+
+
+
 
 @Injectable()
 export class AuthService {
-  private readonly saltRounds = 10;
   constructor(
     private jwtService: JwtService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly configService: ConfigService
   ) {}
 
   async generateToken(user: any){
@@ -35,7 +39,7 @@ export class AuthService {
   }
   
   async hashPassword(password: string): Promise<string>{
-    const salt = await bcrypt.genSalt(this.saltRounds);
+    const salt = await bcrypt.genSalt(this.configService.get('SALT_ROUNDS'));
     return bcrypt.hash(password, salt);
 
   }

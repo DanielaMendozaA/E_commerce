@@ -4,6 +4,9 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { validate as isUUID } from 'uuid';
+
 
 
 @Injectable()
@@ -28,9 +31,13 @@ export class ProductsService {
     }
   }
 
-  async findAll() {
+  async findAll(paginationDto : PaginationDto) {
     try {
-      const products = await this.prodcuctRepository.find();
+      const { limit = 10, offset = 0} = paginationDto
+      const products = await this.prodcuctRepository.find({
+        take: limit,
+        skip: offset
+      });
       return products
     } catch (error) {
       this.handleDBExceptions(error)
@@ -55,12 +62,26 @@ export class ProductsService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(term: string) {
    try {
       // const product = await this.prodcuctRepository.findOne({ where: {id}});
-      const product = await this.prodcuctRepository.findOneBy({id});
+      // const product = await this.prodcuctRepository.findOneBy({id});
+      let product: Product
+
+      if( isUUID(term)){
+        product = await this.prodcuctRepository.findOneBy({id: term})
+      }else{
+        const queryBuilder = this.prodcuctRepository.createQueryBuilder()
+        product = await queryBuilder
+        .where(`UPPER(title) =:title or slug =:slug`, {
+          title: term,
+          slug: term
+        }).getOne();
+
+      }
+
       if (!product) 
-          throw new BadRequestException('Product not found')
+          throw new BadRequestException(`Product with term ${term} found`)
         
         return product
    } catch (error) {
