@@ -33,6 +33,7 @@ async function bootstrap() {
   setupGlobalConfig(app, logger); // Pasa la instancia de LoggerService
 
   await app.listen(3000);
+  console.log('Application is listening on port 3000');
 }
 
 bootstrap();
