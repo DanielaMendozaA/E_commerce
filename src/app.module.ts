@@ -13,6 +13,8 @@ import { RolesModule } from './roles/roles.module';
 import { AllExceptionsFilter, LoggerService, ValidationExceptionFilter } from './common/errors';
 import { APP_FILTER } from '@nestjs/core';
 import { envValidationSchema } from './common/config/joi-validation';
+import { OrderProductsModule } from './order-products/order-products.module';
+
 
 
 @Module({
@@ -32,6 +34,7 @@ import { envValidationSchema } from './common/config/joi-validation';
     UsersModule,
     OrderModule,
     RolesModule,
+    OrderProductsModule
   ],
   providers: [
     LoggerService,

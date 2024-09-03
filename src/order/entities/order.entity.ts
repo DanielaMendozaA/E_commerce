@@ -1,7 +1,10 @@
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "src/products/entities/product.entity";
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/users/entities/user.entity";
+import { OrderStatus } from "../dto/order-status-enum";
 
-@Entity()
+
+@Entity('orders')
 export class Order {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -24,8 +27,17 @@ export class Order {
             referencedColumnName: 'id'
         }
     })
-Ñ
     products: Product[];
+
+    @ManyToOne(() => User, user => user.orders)
+    user: User;
+
+    @Column({
+        type: 'enum',
+        enum: OrderStatus,
+        default: OrderStatus.ACTIVE,
+    })
+    status: OrderStatus;
 
 
 }

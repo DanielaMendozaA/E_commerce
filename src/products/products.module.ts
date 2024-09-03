@@ -6,8 +6,7 @@ import { Product } from './entities/product.entity';
 import { CommonModule } from 'src/common/common.module';
 import { UsersModule } from 'src/users/users.module';
 import { RolesModule } from 'src/roles/roles.module';
-import { IProductService } from './interfaces/product-service.interface';
-import { Order } from 'src/order/entities/order.entity';
+
 
 @Module({
   imports: [
@@ -23,5 +22,6 @@ import { Order } from 'src/order/entities/order.entity';
     provide: 'IProductService',
     useClass: ProductsService
   }],
+  exports: [TypeOrmModule]
 })
 export class ProductsModule {}

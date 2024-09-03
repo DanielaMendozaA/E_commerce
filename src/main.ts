@@ -10,11 +10,21 @@ import RoleSeed from './dabase/seeds/role.seed';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const dataSource = app.get(DataSource);
+
   const logger = app.get(LoggerService); // Obtén la instancia de LoggerService
+
   const roleSeed = new RoleSeed();
+
+
+
   const configService = app.get(ConfigService); // Usa app.get para obtener ConfigService
+
+
   const executeSeedString = configService.get<string>('EXECUTE_SEEDS');
+
+
   logger.log('Execute seeds string: ' + executeSeedString + typeof executeSeedString);
+
   const executeSeed = JSON.parse(executeSeedString);
 
   logger.log('Starting application');

@@ -1,4 +1,4 @@
-export interface UpdateProductResponse {
+export interface UpdateResponse {
     status: string;
     message: string;
   }
